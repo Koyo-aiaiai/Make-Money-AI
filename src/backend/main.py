@@ -1,8 +1,7 @@
+from api.routers import conversation_agent, optimization, research_agent
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
-
-from src.backend.routers import conversation_agent, optimization, research_agent
 
 
 def create_app() -> FastAPI:
