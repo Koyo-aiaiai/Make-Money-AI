@@ -32,7 +32,7 @@ class LLMFactory:
 
     def create_model(self, model_name: str, **kwargs) -> BaseChatModel:
         """
-        Creates a model based on the model name and any additional keyword arguments.
+        Creates a model based on the model name and any additional keyword arguments. This also is responsible for binding tools to the model.
 
         Args:
         - model_name (str): The name of the model to create.
