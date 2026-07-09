@@ -1,3 +1,4 @@
+from conversation_agent.data import UserPreferences
 from pydantic import BaseModel
 
 
@@ -11,4 +12,6 @@ class UserConversastionOutputEvent(BaseModel):
     ai_response: str
     conversation_id: str
     user_id: str
+    user_preferences: UserPreferences
+    is_done: bool
     version: str = "0.1.0"

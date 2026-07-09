@@ -2,7 +2,7 @@ from pydantic import BaseModel
 from Typing import TypedDict
 
 
-class UserPreferences(BaseModel):
+class UserPreferencesState(BaseModel):
     """
     Represents the LLM's understanding of the user's preferences.
     
@@ -15,7 +15,7 @@ class UserPreferences(BaseModel):
     horizon: str
     other: str
 
-class LLMResponse(BaseModel):
+class LLMResponseSchema(BaseModel):
     """
     How the LLM's response should be formatted.
 
@@ -36,5 +36,5 @@ class ConversationState(TypedDict):
     conversation_id: str
     user_id: str
     messages: list
-    user_preferences: UserPreferences | None = None
+    user_preferences: UserPreferencesState | None = None
     is_complete: bool | None = None
