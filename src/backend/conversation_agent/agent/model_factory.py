@@ -1,6 +1,5 @@
 import os
 
-from dotenv import load_dotenv
 from langchain_core.language_models.chat_models import BaseChatModel
 from langchain_google_genai import ChatGoogleGenerativeAI
 

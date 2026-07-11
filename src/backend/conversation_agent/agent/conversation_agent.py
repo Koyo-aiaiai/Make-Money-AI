@@ -1,6 +1,11 @@
-from conversation_agent.agent import states
+from conversation_agent.agent import prompts, states
+from conversation_agent.agent.model_factory import LLMFactory
 from conversation_agent.data import ConversationInput, ConversationOutput
+from langchain_core.messages import HumanMessage
+from langchain_core.runnables import Runnable
 from langgraph import StateGraph
+from langgraph.checkpoint.memory import InMemorySaver
+from langgraph.graph.state import END, START, CompiledStateGraph
 
 
 class ConversationModel:
@@ -10,9 +15,9 @@ class ConversationModel:
     If any validation node returns false, then we return to that node and prompt the AI to try again or just to fix the formatting on their last message.
 
     Attributes:
+    TODO: in the future it might be best to have multiple llms instead of just one.
     - llm (BaseChatModel): The language model used for generating responses.
     - graph (StateGraph): The state graph used to manage the conversation flow.
-    - short_term_checkpointer (BaseCheckpointSaver): The checkpointer used to manage short-term memory.
 
     Nodes:
     - START
@@ -26,13 +31,47 @@ class ConversationModel:
     - invoke (ConversationInput) -> ConversationOutput: takes in the user prompt and returns the response
     """
     def __init__(self):
-        pass
+        self.graph = self._build_graph()
 
-    def _build_graph(self):
-        pass
+    def _build_graph(self) -> Runnable:
+        """
+        Builds the state graph for the conversation model.
+
+        Returns:
+        - CompiledStateGraph: The compiled state graph.
+        """
+        # TODO: this defaults to gemini
+        self.llm = LLMFactory.create_model("gemini")
+        
+        builder = StateGraph(states.ConversationState)
+        checkpointer = InMemorySaver()
+
+
+        # Define the nodes in the graph
+        builder.add_node("record_preferences", self.record_preferences)
+        builder.add_node("generate_response", self.generate_response)
+        builder.add_node("check_is_done", self.check_is_done)
+
+        # Define the edges in the graph
+        builder.add_edge(START, "record_preferences")
+        builder.add_edge("record_preferences", "generate_response")
+        builder.add_edge("generate_response", "check_is_done")
+        builder.add_edge("check_is_done", END)
+
+        graph = builder.compile(checkpointer=checkpointer)
+        return graph
 
     def invoke(self, conversation_input: ConversationInput) -> ConversationOutput:
-        pass
+
+        user_message = HumanMessage(content=conversation_input.user_prompt)
+        response = self.graph.invoke({"messages": [user_message]}, config = {
+            "configurable": {
+                "thread_id": conversation_input.conversation_id,
+                }
+        })
+        output = ConversationOutput(user_preferences=response["user_preferences"])
+        return output
+
 
     ###################################
     # EVEYRTHING DOWN HERE ARE NODES  #

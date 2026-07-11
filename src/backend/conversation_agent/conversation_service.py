@@ -28,3 +28,5 @@ class ConversationService:
             event = await self.queue.get()
 
             # TODO: use conversation model to build the UserConversationOutputEvent and publish it to the event bus
+
+            self.conversation_model.invoke(event)

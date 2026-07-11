@@ -25,4 +25,4 @@ class ConversationOutput(BaseModel):
     """
     Output event from the conversation module.
     """
-    pass
+    user_preferences: UserPreferences
